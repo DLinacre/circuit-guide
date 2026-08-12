@@ -77,6 +77,16 @@ npx serve .
 3. On GitHub: **Settings → Pages → Source: `main` branch / root → Save**.
 4. Wait a minute — your site is live at `https://YOUR-USERNAME.github.io/circuit-guide/`.
 
+## ✨ Extras
+
+- **📱 Installable / offline (PWA)** — once loaded it works without internet; "Add to Home Screen" launches it full-screen like an app (service worker + web manifest).
+- **🌗 Light & dark themes** — toggle in the top-right or the floating moon/sun button; your choice is remembered.
+- **📊 Reading progress bar** across the top.
+- **⬆ Back-to-top button** that appears as you scroll.
+- **🖨 Print / save as PDF** button.
+- **📴 Offline indicator** if your connection drops.
+- **🚑 Friendly 404 page** drawn in the same circuit style.
+
 ## ♿ Accessibility
 
 - All interactive controls work with a mouse or touch.

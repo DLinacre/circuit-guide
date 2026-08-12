@@ -12,6 +12,10 @@
 <meta property="og:description" content="Short words · Interactive diagrams · No jargon — learn circuits and your multimeter.">
 <meta property="og:image" content="assets/banner.png">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
   :root{
     --bg:#0f1419; --panel:#1a2129; --ink:#e8eef5; --muted:#9fb0c0;
@@ -105,12 +109,39 @@
   .mmode{font-size:.8rem;color:var(--muted);text-align:left;margin-bottom:4px}
   .stepbig{display:flex;gap:12px;align-items:flex-start;margin:10px 0;padding:10px;background:#121a22;border-radius:8px}
   .stepbig .n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--green);color:#0f1419;font-weight:700;display:flex;align-items:center;justify-content:center}
+  /* top progress + floating buttons */
+  #progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--green),var(--yellow));z-index:100;transition:width .1s;border-radius:0 3px 3px 0}
+  .fab{position:fixed;right:18px;bottom:18px;width:48px;height:48px;border-radius:50%;border:1px solid var(--green);background:var(--green-dim);color:var(--green);font-size:1.3rem;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);opacity:0;transform:translateY(12px);transition:.25s;z-index:90;display:flex;align-items:center;justify-content:center}
+  .fab.show{opacity:1;transform:translateY(0)}
+  .fab:hover{background:var(--green);color:#0f1419}
+  #themeBtn{right:74px;bottom:18px}
+  .topbar{position:sticky;top:0;z-index:80;display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:8px 0;margin:-8px 0 6px}
+  .pill{background:var(--panel);border:1px solid #2a333d;color:var(--muted);border-radius:999px;padding:6px 12px;font-size:.82rem;cursor:pointer}
+  .pill:hover{border-color:var(--green);color:var(--green)}
+  /* light theme */
+  body.light{--bg:#f3f6f4;--panel:#ffffff;--ink:#13201a;--muted:#4d5f57;--wire:#2f9e5f;--green:#1a8f4d;--green-dim:#d7f0e1}
+  body.light .card{border-color:#d9e2dc;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+  body.light svg{background:#eef3f0}
+  body.light .part,body.light .answer,body.light .callout,body.light .stepbig{background:#f7faf8}
+  body.light table.tt th{background:#eaf4ee}
+  body.light .mmscreen{background:#dff5e7;color:#0a5a2a}
+  body.light .mmeter{background:#eef3f0}
+  body.light .jack{background:#eef3f0}
+  body.light .dial .pos{background:#eef3f0}
+  /* offline badge */
+  #netBadge{position:fixed;left:18px;bottom:18px;background:var(--red);color:#fff;padding:8px 14px;border-radius:999px;font-size:.82rem;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.4);z-index:90;display:none}
+  #netBadge.show{display:block}
 </style>
 </head>
 <body>
+<div id="progress"></div>
+<div class="topbar">
+  <button class="pill" id="themeBtnTop" title="Toggle light/dark">🌙 Dark</button>
+  <button class="pill" id="printBtn" title="Print or save as PDF">🖨 Print</button>
+</div>
 
 <h1>🔌 Circuit Boards, Visually</h1>
-<p class="sub">Short words. Big pictures. Flip the switch and watch what happens.</p>
+<p class="sub">Short words. Big pictures. Flip the switch and watch what happens. Works fully offline once loaded — add it to your home screen.</p>
 
 <!-- ============ STEP 1 ============ -->
 <h2>1. The simplest loop</h2>
@@ -516,6 +547,10 @@
   <p class="small" style="margin-top:10px">Made to start simple. Re-open it any time you pull something apart. 🔧</p>
 </div>
 
+<button class="fab" id="themeBtn" title="Toggle light/dark" aria-label="Toggle theme">🌙</button>
+<button class="fab" id="toTop" title="Back to top" aria-label="Back to top">⬆</button>
+<div id="netBadge">📴 You're offline — the guide still works</div>
+
 <script>
 // Switch 1
 (function(){
@@ -586,6 +621,58 @@
     update();
   };
   res.oninput=update;
+})();
+
+// Theme toggle + persistence
+(function(){
+  const saved=localStorage.getItem('cb-theme');
+  if(saved==='light') document.body.classList.add('light');
+  function sync(){
+    const light=document.body.classList.contains('light');
+    const label=light?'☀️ Light':'🌙 Dark';
+    document.getElementById('themeBtn').textContent=light?'☀️':'🌙';
+    document.getElementById('themeBtnTop').textContent=label;
+    document.getElementById('progress').style.background=
+      light?'linear-gradient(90deg,#1a8f4d,#c79100)':'linear-gradient(90deg,var(--green),var(--yellow))';
+  }
+  function toggle(){
+    document.body.classList.toggle('light');
+    localStorage.setItem('cb-theme', document.body.classList.contains('light')?'light':'dark');
+    sync();
+  }
+  document.getElementById('themeBtn').onclick=toggle;
+  document.getElementById('themeBtnTop').onclick=toggle;
+  sync();
+  document.getElementById('printBtn').onclick=()=>window.print();
+})();
+
+// Scroll progress + back to top
+(function(){
+  const bar=document.getElementById('progress');
+  const top=document.getElementById('toTop');
+  function onScroll(){
+    const h=document.documentElement.scrollHeight-window.innerHeight;
+    const p=h>0?(window.scrollY/h)*100:0;
+    bar.style.width=p+'%';
+    top.classList.toggle('show',window.scrollY>500);
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  top.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+  onScroll();
+})();
+
+// Offline badge + service worker
+(function(){
+  const badge=document.getElementById('netBadge');
+  function setNet(){badge.classList.toggle('show',!navigator.onLine);}
+  window.addEventListener('online',setNet);
+  window.addEventListener('offline',setNet);
+  setNet();
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>{
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    });
+  }
 })();
 
 // Multimeter dial

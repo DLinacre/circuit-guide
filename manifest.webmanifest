@@ -1,0 +1,15 @@
+{
+  "name": "Circuit Boards, Visually",
+  "short_name": "Circuits",
+  "description": "A visual, no-jargon interactive guide to circuits and multimeters.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f1419",
+  "theme_color": "#0f1419",
+  "icons": [
+    { "src": "assets/favicon.png", "sizes": "64x64", "type": "image/png" },
+    { "src": "assets/icon.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

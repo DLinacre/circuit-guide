@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Circuit Boards, Visually</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+  :root{--bg:#0f1419;--panel:#1a2129;--ink:#e8eef5;--muted:#9fb0c0;--green:#3ddc84;--red:#ff5b5b}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .box{max-width:520px;text-align:center}
+  svg{width:100%;height:auto}
+  h1{font-size:clamp(4rem,18vw,8rem);color:var(--red);line-height:1}
+  h2{font-size:1.3rem;margin:8px 0 10px}
+  p{color:var(--muted);margin-bottom:18px}
+  a{display:inline-block;background:var(--green);color:#0f1419;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:10px}
+  a:hover{filter:brightness(1.1)}
+  .wire{stroke:#5ec97a;stroke-width:6;fill:none;stroke-linecap:round;stroke-dasharray:14 10;animation:dash 1s linear infinite}
+  @keyframes dash{to{stroke-dashoffset:-24}}
+</style>
+</head>
+<body>
+<div class="box">
+  <svg viewBox="0 0 400 180" role="img" aria-label="broken circuit">
+    <path class="wire" d="M30 90 H150"/>
+    <path class="wire" d="M250 90 H370"/>
+    <path d="M160 70 L240 110 M160 110 L240 70" stroke="#ff5b5b" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="30" cy="90" r="14" fill="#2a333d" stroke="#4a5561"/>
+    <text x="20" y="95" fill="#ff5b5b" font-size="16" font-weight="bold">+</text>
+    <circle cx="370" cy="90" r="14" fill="#3ddc84"/>
+  </svg>
+  <h1>404</h1>
+  <h2>This loop is broken 🔌</h2>
+  <p>The page you tried to reach doesn't exist — like a wire that's been cut, no current flows here.</p>
+  <a href="./">← Back to the guide</a>
+</div>
+</body>
+</html>

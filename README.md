@@ -25,7 +25,7 @@ No maths beyond one short formula. No paragraphs you have to re-read three times
 
 ## 🧭 Try it
 
-- **🌐 Live:** https://dlinacre.github.io/circuit-guide/ *(after you enable GitHub Pages — see below)*
+- **🌐 Live:** https://dlinacre.github.io/circuit-guide/
 - **💻 Offline:** just open `index.html` in any browser. No internet, no install, no dependencies.
 
 ## 📦 What's inside

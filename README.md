@@ -25,7 +25,7 @@ No maths beyond one short formula. No paragraphs you have to re-read three times
 
 ## 🧭 Try it
 
-- **🌐 Live:** https://YOUR-GITHUB-USERNAME.github.io/circuit-guide/ *(after you enable GitHub Pages — see below)*
+- **🌐 Live:** https://dlinacre.github.io/circuit-guide/ *(after you enable GitHub Pages — see below)*
 - **💻 Offline:** just open `index.html` in any browser. No internet, no install, no dependencies.
 
 ## 📦 What's inside
@@ -71,7 +71,7 @@ npx serve .
    git add .
    git commit -m "Circuit Boards, Visually"
    git branch -M main
-   git remote add origin https://github.com/YOUR-USERNAME/circuit-guide.git
+   git remote add origin https://github.com/DLinacre/circuit-guide.git
    git push -u origin main
    ```
 3. On GitHub: **Settings → Pages → Source: `main` branch / root → Save**.

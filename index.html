@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circuit Boards, Visually — A Simple Interactive Guide</title>
+<meta name="description" content="Learn circuit boards the visual way: short words, interactive diagrams, multimeter settings explained, and why resistors exist. No jargon.">
+<meta name="theme-color" content="#0f1419">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<meta property="og:title" content="Circuit Boards, Visually">
+<meta property="og:description" content="Short words · Interactive diagrams · No jargon — learn circuits and your multimeter.">
+<meta property="og:image" content="assets/banner.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root{
+    --bg:#0f1419; --panel:#1a2129; --ink:#e8eef5; --muted:#9fb0c0;
+    --green:#3ddc84; --green-dim:#1f6b43; --wire:#5ec97a; --copper:#e0a96d;
+    --red:#ff5b5b; --blue:#5ba3ff; --yellow:#ffd24a; --purple:#b58bff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,Arial,sans-serif;background:var(--bg);
+    color:var(--ink);line-height:1.5;padding:16px;max-width:1100px;margin:0 auto;
+  }
+  h1{font-size:clamp(1.4rem,4vw,2.2rem);margin-bottom:4px}
+  h2{font-size:1.25rem;margin:24px 0 12px;color:var(--green);border-left:4px solid var(--green);padding-left:10px}
+  .sub{color:var(--muted);font-size:.95rem;margin-bottom:20px}
+  .card{
+    background:var(--panel);border-radius:14px;padding:18px;margin-bottom:18px;
+    border:1px solid #2a333d;
+  }
+  .step{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+  .step .num{
+    flex:0 0 34px;height:34px;border-radius:50%;background:var(--green-dim);
+    color:var(--green);display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:1.05rem;
+  }
+  .step p{font-size:1.05rem}
+  .step b{color:var(--green)}
+  .lead{font-size:1.1rem;margin-bottom:8px}
+  .muted{color:var(--muted);font-size:.92rem}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0 4px}
+  .legend span{display:inline-flex;align-items:center;gap:6px;font-size:.9rem}
+  .dot{width:14px;height:14px;border-radius:3px;display:inline-block}
+  /* controls */
+  .controls{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0;align-items:center}
+  .btn{
+    background:var(--green-dim);color:var(--green);border:1px solid var(--green);
+    padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600;font-size:.95rem;
+    transition:.15s;
+  }
+  .btn:hover{background:var(--green);color:#0f1419}
+  .btn.off{background:#2a333d;color:var(--muted);border-color:#3a4551}
+  label.toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:.95rem}
+  input[type=range]{width:140px;accent-color:var(--green)}
+  select{background:#2a333d;color:var(--ink);border:1px solid #3a4551;border-radius:8px;padding:6px 10px;font-size:.95rem}
+  /* svg */
+  svg{width:100%;height:auto;display:block;background:#0c1117;border-radius:12px;margin:8px 0}
+  .wire{stroke:var(--wire);stroke-width:5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .flow{stroke:var(--yellow);stroke-width:5;fill:none;stroke-linecap:round;
+    stroke-dasharray:14 10;animation:flow 1s linear infinite}
+  @keyframes flow{to{stroke-dashoffset:-24}}
+  .pad{fill:#b8c4cf}
+  .lbl{fill:var(--muted);font-size:12px;font-family:inherit}
+  .lbl-big{fill:var(--ink);font-size:14px;font-weight:600}
+  .led-glow{filter:url(#glow)}
+  .hidden{display:none}
+  /* callout */
+  .callout{display:flex;gap:12px;background:#121a22;border-left:4px solid var(--yellow);
+    padding:12px 14px;border-radius:8px;margin-top:12px;font-size:.95rem}
+  .callout.warn{border-color:var(--red)}
+  .callout.ok{border-color:var(--green)}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .part{background:#121a22;padding:12px;border-radius:10px;border:1px solid #2a333d}
+  .part .ico{font-size:1.6rem;margin-bottom:4px}
+  .part h4{font-size:1rem;margin-bottom:2px}
+  .part p{font-size:.88rem;color:var(--muted)}
+  .tag{display:inline-block;background:var(--green-dim);color:var(--green);
+    padding:2px 8px;border-radius:6px;font-size:.8rem;font-weight:600;margin-right:6px}
+  .answer{background:#0c1117;border:1px solid var(--green-dim);border-radius:10px;padding:14px;margin-top:10px}
+  .answer h4{color:var(--yellow);margin-bottom:6px}
+  ul.clean{list-style:none;margin:8px 0}
+  ul.clean li{padding:4px 0 4px 24px;position:relative}
+  ul.clean li::before{content:"▸";position:absolute;left:6px;color:var(--green)}
+  .small{font-size:.88rem;color:var(--muted)}
+  .red{color:var(--red)}.grn{color:var(--green)}.yel{color:var(--yellow)}.blu{color:var(--blue)}
+  code{background:#0c1117;padding:2px 6px;border-radius:5px;font-size:.9em;color:var(--yellow)}
+  /* multimeter */
+  .dial{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+  .dial .pos{background:#0c1117;border:1px solid #2a333d;border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-size:.85rem;transition:.15s;min-height:70px;display:flex;flex-direction:column;justify-content:center}
+  .dial .pos .sym{font-size:1.5rem;font-weight:700;line-height:1}
+  .dial .pos .nm{color:var(--muted);font-size:.78rem;margin-top:4px}
+  .dial .pos:hover{border-color:var(--green)}
+  .dial .pos.active{background:var(--green-dim);border-color:var(--green);box-shadow:0 0 0 2px rgba(61,220,132,.25)}
+  .dial .pos.active .nm{color:var(--green)}
+  .probe{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .probe .jack{background:#0c1117;border:1px solid #2a333d;border-radius:8px;padding:8px 10px;font-size:.85rem}
+  .jack.red{border-color:var(--red)}.jack.black{border-color:var(--blue)}
+  table.tt{width:100%;border-collapse:collapse;margin:8px 0;font-size:.9rem}
+  table.tt th,table.tt td{border:1px solid #2a333d;padding:8px 10px;text-align:left;vertical-align:top}
+  table.tt th{background:#121a22;color:var(--green)}
+  .mmeter{background:#0c1117;border:2px solid #2a333d;border-radius:12px;padding:12px;max-width:340px;margin:10px auto}
+  .mmscreen{background:#0a1a12;color:var(--green);border-radius:8px;padding:14px;font-family:'Courier New',monospace;font-size:1.6rem;text-align:right;border:1px solid #1f3a28;min-height:60px;letter-spacing:1px}
+  .mmode{font-size:.8rem;color:var(--muted);text-align:left;margin-bottom:4px}
+  .stepbig{display:flex;gap:12px;align-items:flex-start;margin:10px 0;padding:10px;background:#121a22;border-radius:8px}
+  .stepbig .n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--green);color:#0f1419;font-weight:700;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+<h1>🔌 Circuit Boards, Visually</h1>
+<p class="sub">Short words. Big pictures. Flip the switch and watch what happens.</p>
+
+<!-- ============ STEP 1 ============ -->
+<h2>1. The simplest loop</h2>
+<div class="card">
+  <p class="lead">A circuit is just a <b>loop</b> that electricity runs around.</p>
+  <div class="step"><div class="num">1</div><p><b>Battery</b> pushes electricity (like a pump pushes water).</p></div>
+  <div class="step"><div class="num">2</div><p><b>Wires</b> carry it in a circle.</p></div>
+  <div class="step"><div class="num">3</div><p><b>Load</b> uses the electricity — e.g. an LED (makes light).</p></div>
+  <div class="step"><div class="num">4</div><p>Electricity comes <b>back</b> to the battery. No loop = no flow.</p></div>
+
+  <svg viewBox="0 0 700 220" role="img" aria-label="simple circuit">
+    <defs>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="4" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <!-- battery -->
+    <g transform="translate(60,80)">
+      <rect x="-20" y="-35" width="40" height="70" rx="6" fill="#2a333d" stroke="#4a5561"/>
+      <line x1="-12" y1="-35" x2="-12" y2="-25" stroke="var(--red)" stroke-width="3"/>
+      <text x="-6" y="-18" class="lbl-big" fill="var(--red)">+</text>
+      <text x="-6" y="30" class="lbl-big" fill="var(--blue)">−</text>
+      <text x="-22" y="55" class="lbl">battery</text>
+    </g>
+    <!-- loop wire -->
+    <path class="wire" d="M60 55 H200 V20 H500 V55"/>
+    <path class="wire" d="M60 125 H200 V200 H500 V125"/>
+    <!-- LED -->
+    <g transform="translate(560,110)">
+      <circle r="26" fill="#0c1117" stroke="var(--green)" stroke-width="3" class="led-glow"/>
+      <path d="M-12 8 L12 -8 M-12 -8 L12 8" stroke="var(--green)" stroke-width="3"/>
+      <text x="-14" y="50" class="lbl">LED</text>
+    </g>
+    <text x="300" y="50" class="lbl" text-anchor="middle">electricity flows this way →</text>
+  </svg>
+
+  <div class="callout">
+    <span>💡</span>
+    <div><b>Think of water.</b> Battery = pump. Wire = pipe. LED = water wheel. The wheel only spins if water can loop back to the pump.</div>
+  </div>
+</div>
+
+<!-- ============ STEP 2 — INTERACTIVE ============ -->
+<h2>2. Flip the switch</h2>
+<div class="card">
+  <p class="lead">A switch just <b>breaks</b> the loop. No loop → no light.</p>
+  <div class="controls">
+    <button class="btn" id="sw1">Switch: OFF</button>
+  </div>
+
+  <svg viewBox="0 0 700 240" role="img" aria-label="switch circuit">
+    <path class="wire" d="M60 60 H250"/>
+    <path class="wire" d="M350 60 H560"/>
+    <path class="wire" d="M60 150 H560 V90"/>
+    <!-- battery -->
+    <g transform="translate(60,105)">
+      <rect x="-18" y="-32" width="36" height="64" rx="6" fill="#2a333d" stroke="#4a5561"/>
+      <text x="-4" y="-14" class="lbl-big" fill="var(--red)">+</text>
+      <text x="-4" y="26" class="lbl-big" fill="var(--blue)">−</text>
+    </g>
+    <!-- switch -->
+    <g id="switch1" transform="translate(300,60)">
+      <circle cx="-40" cy="0" r="6" fill="var(--pad)"/>
+      <circle cx="40" cy="0" r="6" fill="var(--pad)"/>
+      <line id="lever1" x1="-40" y1="0" x2="34" y2="-22" stroke="var(--copper)" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <!-- LED -->
+    <g transform="translate(610,90)">
+      <circle id="led1" r="22" fill="#0c1117" stroke="#3a5540" stroke-width="3"/>
+      <path d="M-10 6 L10 -6 M-10 -6 L10 6" stroke="#3a5540" stroke-width="2"/>
+    </g>
+    <!-- flow overlay hidden -->
+    <path id="flow1" class="flow hidden" d="M60 60 H260 L340 60 H610 V90 M610 90 V150 H60 V60"/>
+    <text id="state1" x="350" y="210" class="lbl-big" text-anchor="middle">CLOSED loop — light on</text>
+  </svg>
+</div>
+
+<!-- ============ STEP 3 — RESISTOR ============ -->
+<h2>3. Why the resistor? 🤔</h2>
+<div class="card">
+  <p class="lead">An LED is <b>greedy</b>. Without a resistor, it grabs too much current and burns out.</p>
+  <div class="grid2">
+    <div class="part"><div class="ico">🪫</div><h4>Battery</h4><p>Pushes with a voltage — 9 V.</p></div>
+    <div class="part"><div class="ico">💡</div><h4>LED</h4><p>Only wants ~2 V. The extra 7 V has to go <em>somewhere</em>.</p></div>
+    <div class="part"><div class="ico">🛑</div><h4>Resistor</h4><p>Soaks up the extra 7 V as heat. It "restricts" the flow.</p></div>
+  </div>
+
+  <div class="callout warn">
+    <span>🔥</span>
+    <div><b>No resistor = LED pops.</b> Slide the resistor down to 0 Ω and watch what happens below.</div>
+  </div>
+
+  <div class="controls">
+    <label class="toggle">Resistor:
+      <input type="range" id="resVal" min="0" max="1000" value="330" step="10">
+      <span id="resLbl">330 Ω</span>
+    </label>
+    <button class="btn off" id="sw2">Switch: OFF</button>
+  </div>
+
+  <svg viewBox="0 0 700 260" role="img" aria-label="resistor circuit">
+    <path class="wire" d="M60 70 H230"/>
+    <path class="wire" d="M330 70 H560"/>
+    <path class="wire" d="M60 170 H560 V100"/>
+    <!-- battery -->
+    <g transform="translate(60,120)">
+      <rect x="-18" y="-32" width="36" height="64" rx="6" fill="#2a333d" stroke="#4a5561"/>
+      <text x="-4" y="-14" class="lbl-big" fill="var(--red)">+</text>
+      <text x="-4" y="26" class="lbl-big" fill="var(--blue)">−</text>
+    </g>
+    <!-- resistor (zigzag) -->
+    <g transform="translate(280,70)">
+      <rect id="resBody" x="-50" y="-14" width="100" height="28" rx="14" fill="#d9b382" stroke="#7a5a30"/>
+      <g stroke="#6b4226" stroke-width="5"><line x1="-30" y1="0" x2="-10" y2="0"/><line x1="10" y1="0" x2="30" y2="0"/></g>
+      <text x="-28" y="-22" class="lbl">resistor</text>
+    </g>
+    <!-- switch -->
+    <g transform="translate(420,70)">
+      <circle cx="-20" cy="0" r="5" fill="var(--pad)"/>
+      <circle cx="20" cy="0" r="5" fill="var(--pad)"/>
+      <line id="lever2" x1="-20" y1="0" x2="18" y2="-18" stroke="var(--copper)" stroke-width="4"/>
+    </g>
+    <!-- LED -->
+    <g transform="translate(610,100)">
+      <circle id="led2" r="22" fill="#0c1117" stroke="#3a5540" stroke-width="3"/>
+      <path id="ledrays" d="M-10 6 L10 -6 M-10 -6 L10 6" stroke="#3a5540" stroke-width="2"/>
+    </g>
+    <path id="flow2" class="flow hidden" d="M60 70 H230 M330 70 H610 M610 100 V170 H60 V70"/>
+    <text x="350" y="225" class="lbl" text-anchor="middle" id="readout">Turn it on →</text>
+  </svg>
+  <p class="small">Formula the circuit uses: <code>current = (battery 9V − LED 2V) ÷ resistor</code>. More Ω = less current = dimmer LED. Too little = burn.</p>
+</div>
+
+<!-- ============ STEP 4 — ADD PARTS ============ -->
+<h2>4. Adding more parts</h2>
+<div class="card">
+  <p class="lead">Real boards just chain more little parts into the loop. Click each to see what it does.</p>
+
+  <div class="grid2" id="partsGrid">
+    <div class="part" data-p="res"><div class="ico">🛑</div><h4>Resistor</h4><p>Limits current. Protects LEDs &amp; chips.</p></div>
+    <div class="part" data-p="cap"><div class="ico">🪣</div><h4>Capacitor</h4><p>Stores a tiny sip of electricity. Smooths bumps.</p></div>
+    <div class="part" data-p="dio"><div class="ico">↩️</div><h4>Diode</h4><p>One-way valve. Electricity only flows the arrow way.</p></div>
+    <div class="part" data-p="tran"><div class="ico">🚪</div><h4>Transistor</h4><p>Tiny switch/amplifier. A little current controls a big one.</p></div>
+    <div class="part" data-p="ic"><div class="ico">🧠</div><h4>IC / Chip</h4><p>Lots of transistors in one black box — the "brain".</p></div>
+    <div class="part" data-p="sw"><div class="ico">🔘</div><h4>Switch / Button</h4><p>Breaks or closes the loop on command.</p></div>
+    <div class="part" data-p="spk"><div class="ico">🔊</div><h4>Speaker</h4><p>Vibrates from current → makes sound (your radio!).</p></div>
+    <div class="part" data-p="solar"><div class="ico">☀️</div><h4>Solar panel</h4><p>Makes electricity from light. It IS a battery (when sunny).</p></div>
+  </div>
+  <div id="partDetail" class="callout" style="margin-top:14px"><span>👆</span><div><b>Tap a part</b> to learn what it does in a circuit.</div></div>
+</div>
+
+<!-- ============ STEP 5 — THE PCB ============ -->
+<h2>5. What you see on a pulled-apart board</h2>
+<div class="card">
+  <p class="lead">The green board is just <b>flat wires</b> holding all those parts.</p>
+  <svg viewBox="0 0 700 320" role="img" aria-label="pcb diagram">
+    <rect x="10" y="10" width="680" height="300" rx="14" fill="#104023" stroke="#1d6b3a" stroke-width="3"/>
+    <!-- copper traces -->
+    <path d="M90 70 H250 V160 H380" stroke="#ffb84d" stroke-width="4" fill="none" opacity=".85"/>
+    <path d="M90 240 H200 V160 H250" stroke="#ffb84d" stroke-width="4" fill="none" opacity=".85"/>
+    <path d="M380 160 H560 V90" stroke="#ffb84d" stroke-width="4" fill="none" opacity=".85"/>
+    <path d="M560 90 H620" stroke="#ffb84d" stroke-width="4" fill="none" opacity=".85"/>
+    <path d="M380 160 V250 H500" stroke="#ffb84d" stroke-width="4" fill="none" opacity=".85"/>
+    <!-- parts -->
+    <g><rect x="55" y="55" width="50" height="30" rx="4" fill="#222"/><text x="80" y="75" fill="#ccc" font-size="10" text-anchor="middle">IC1</text><text x="80" y="45" class="lbl" text-anchor="middle" fill="#bfe0c8">chip</text></g>
+    <g><circle cx="250" cy="160" r="14" fill="#d9b382" stroke="#7a5a30"/><text x="250" y="190" class="lbl" text-anchor="middle" fill="#bfe0c8">resistor</text></g>
+    <g><rect x="360" y="140" width="40" height="40" rx="4" fill="#334"/><text x="380" y="130" class="lbl" text-anchor="middle" fill="#bfe0c8">capacitor</text></g>
+    <g><circle cx="560" cy="90" r="10" fill="var(--red)"/><text x="560" y="70" class="lbl" text-anchor="middle" fill="#bfe0c8">LED</text></g>
+    <g><circle cx="90" cy="240" r="12" fill="#222"/><text x="90" y="270" class="lbl" text-anchor="middle" fill="#bfe0c8">transistor</text></g>
+    <g><rect x="560" y="235" width="70" height="30" rx="4" fill="#444"/><text x="595" y="280" class="lbl" text-anchor="middle" fill="#bfe0c8">speaker/buzzer</text></g>
+    <!-- pads -->
+    <g fill="#c9d4de">
+      <circle cx="200" cy="160" r="4"/><circle cx="250" cy="160" r="4"/>
+      <circle cx="380" cy="160" r="4"/><circle cx="560" cy="90" r="4"/>
+      <circle cx="90" cy="240" r="4"/><circle cx="90" cy="70" r="4"/>
+    </g>
+    <text x="350" y="305" class="lbl" text-anchor="middle" fill="#bfe0c8">gold lines = flat copper wires (traces) connecting the parts</text>
+  </svg>
+  <ul class="clean">
+    <li><b class="yel">Gold lines</b> are the wires — printed flat instead of round.</li>
+    <li><b class="grn">Silver dots</b> (pads) are where parts are soldered.</li>
+    <li>Parts sit on top; traces connect them underneath in a loop.</li>
+  </ul>
+</div>
+
+<!-- ============ STEP 6 — YOUR QUESTION ============ -->
+<h2>6. Your solar panel ↔ LED question ☀️→💡</h2>
+<div class="card">
+  <p class="lead">Your instinct was right — <b>it doesn't work the way it looks</b>. Here's why, in pictures.</p>
+
+  <div class="grid2">
+    <div class="part" style="border-color:var(--red)">
+      <div class="ico">💡</div>
+      <h4 class="red">LED</h4>
+      <p>An LED <b>uses</b> electricity. It's a <b>load</b> — like a water wheel. Electricity goes IN, light comes OUT.</p>
+    </div>
+    <div class="part" style="border-color:var(--yellow)">
+      <div class="ico">☀️</div>
+      <h4 class="yel">Solar panel</h4>
+      <p>A solar panel <b>makes</b> electricity. It's a <b>source</b> — like a battery. Light goes IN, electricity comes OUT.</p>
+    </div>
+  </div>
+
+  <div class="answer">
+    <h4>So can you plug the solar panel into the LED's socket?</h4>
+    <ul class="clean">
+      <li>The LED socket is a <b class="red">consumer</b> — it expects power to flow INTO it.</li>
+      <li>The solar panel is a <b class="yel">producer</b> — it pushes power OUT.</li>
+      <li>Plugging source → source-socket is like pouring water into the pump instead of the pipe. <b>It won't power the radio</b>, and can back-feed where it shouldn't.</li>
+    </ul>
+  </div>
+
+  <div class="answer" style="border-color:var(--yellow)">
+    <h4>✅ What actually works</h4>
+    <p class="small" style="margin-bottom:8px">Use the solar panel <b>in place of the battery</b>, not in place of the LED:</p>
+    <svg viewBox="0 0 700 200" role="img" aria-label="solar as battery">
+      <path class="wire" d="M120 60 H300 V30 H560 V60"/>
+      <path class="wire" d="M120 140 H300 V170 H560 V140"/>
+      <!-- solar -->
+      <g transform="translate(80,100)">
+        <rect x="-40" y="-30" width="80" height="60" rx="6" fill="#2a3a5a" stroke="var(--yellow)" stroke-width="2"/>
+        <g stroke="var(--yellow)" stroke-width="1.5"><line x1="-20" y1="-30" x2="-20" y2="30"/><line x1="0" y1="-30" x2="0" y2="30"/><line x1="20" y1="-30" x2="20" y2="30"/><line x1="-40" y1="-10" x2="40" y2="-10"/><line x1="-40" y1="10" x2="40" y2="10"/></g>
+        <text x="0" y="-40" class="lbl-big" text-anchor="middle" fill="var(--yellow)">☀ solar</text>
+        <text x="-20" y="-20" class="lbl-big" fill="var(--red)">+</text>
+        <text x="-20" y="22" class="lbl-big" fill="var(--blue)">−</text>
+      </g>
+      <!-- radio/load -->
+      <g transform="translate(600,100)">
+        <rect x="-40" y="-35" width="80" height="70" rx="8" fill="#2a333d" stroke="var(--green)"/>
+        <text x="0" y="5" class="lbl-big" text-anchor="middle" fill="var(--green)">RADIO</text>
+        <text x="0" y="25" class="lbl" text-anchor="middle" fill="var(--muted)">📻</text>
+      </g>
+      <text x="350" y="15" class="lbl" text-anchor="middle" fill="var(--yellow)">connect to where the BATTERY was (+ to +, − to −)</text>
+    </svg>
+    <ul class="clean">
+      <li>Solar <b>+ wire</b> → radio's battery <b>+ contact</b>.</li>
+      <li>Solar <b>− wire</b> → radio's battery <b>− contact</b>.</li>
+      <li>Check <b>voltage</b>: solar must match the battery (e.g. 6 V panel for a 6 V radio). Too many volts = smoke. ☠️</li>
+      <li>Solar is weak in shade — radio may stutter; add a capacitor/battery pack to smooth it.</li>
+    </ul>
+  </div>
+
+  <div class="callout warn">
+    <span>⚠️</span>
+    <div><b>Same fitting ≠ same job.</b> Connectors can look identical but carry power in opposite directions. Always trace where the two wires go before you plug in.</div>
+  </div>
+</div>
+
+<!-- ============ MULTIMETER ============ -->
+<h2>7. The multimeter — your circuit x-ray 🔍</h2>
+<div class="card">
+  <p class="lead">A multimeter is just a <b>measuring stick</b> for electricity. It can't put power in — it only <i>watches</i>.</p>
+  <p>Electricity has 3 things worth measuring. Use the water-in-pipes picture again:</p>
+  <table class="tt">
+    <tr><th>Electricity thing</th><th>Unit</th><th>Water equivalent</th><th>What it answers</th></tr>
+    <tr><td><b class="blu">Voltage</b> (V)</td><td>Volts</td><td>Water <b>pressure</b></td><td>"How hard is it pushing?"</td></tr>
+    <tr><td><b class="red">Current</b> (A)</td><td>Amps</td><td>Water <b>flow rate</b></td><td>"How much is going through?"</td></tr>
+    <tr><td><b class="grn">Resistance</b> (Ω)</td><td>Ohms</td><td>A <b>narrow pipe</b></td><td>"How hard is it getting through?"</td></tr>
+  </table>
+  <p class="small">Extra ones you'll see: <b>Hz</b> (Hertz = wobbles per second, for AC/mains), <b>°</b> (temperature), <b>diode/beep</b> (continuity test — beeps if two points are connected).</p>
+
+  <div class="grid2" style="margin-top:12px">
+    <div class="part"><div class="ico">📏</div><h4>It doesn't power anything</h4><p>It only listens. Safe to touch probes to almost any low-voltage circuit.</p></div>
+    <div class="part"><div class="ico">🔴⚫</div><h4>Two probes, always</h4><p>Red = "look here". Black = "compare to here". It measures the <i>difference</i> between them.</p></div>
+  </div>
+</div>
+
+<h2 style="border-color:var(--yellow);color:var(--yellow)">7a. The dial, one symbol at a time</h2>
+<div class="card">
+  <p class="lead">Click each setting to see what it does, where the wires go, and a real reading.</p>
+  <div class="dial" id="dial">
+    <div class="pos active" data-m="off"><div class="sym">⏻</div><div class="nm">Off</div></div>
+    <div class="pos" data-m="vdc"><div class="sym">V⎓</div><div class="nm">DC volts</div></div>
+    <div class="pos" data-m="vac"><div class="sym">V∿</div><div class="nm">AC volts (Hz)</div></div>
+    <div class="pos" data-m="adc"><div class="sym">A⎓</div><div class="nm">DC amps</div></div>
+    <div class="pos" data-m="ohm"><div class="sym">Ω</div><div class="nm">Resistance</div></div>
+    <div class="pos" data-m="cont"><div class="sym">))) </div><div class="nm">Continuity/beep</div></div>
+    <div class="pos" data-m="diode"><div class="sym">⏩</div><div class="nm">Diode test</div></div>
+    <div class="pos" data-m="hz"><div class="sym">Hz</div><div class="nm">Frequency</div></div>
+  </div>
+
+  <div class="probe">
+    <span class="small">Plug wires into:</span>
+    <span class="jack black">⚫ COM — black lead, always</span>
+    <span class="jack red" id="redJack">🔴 VΩ — red lead (for volts/ohms/beep)</span>
+  </div>
+
+  <div class="grid2" style="margin-top:10px;align-items:start">
+    <div>
+      <div class="mmeter">
+        <div class="mmode" id="mmMode">— OFF —</div>
+        <div class="mmscreen" id="mmScreen">-----</div>
+      </div>
+      <div class="callout ok" id="mmTip"><span>👆</span><div>Tap a dial setting above.</div></div>
+    </div>
+    <div class="answer" id="mmInfo" style="margin-top:0">
+      <h4>Tap a setting</h4>
+      <p class="small">Each one will explain itself here.</p>
+    </div>
+  </div>
+</div>
+
+<h2 style="border-color:var(--yellow);color:var(--yellow)">7b. The 3 jobs you'll actually use</h2>
+<div class="card">
+  <h3 style="color:var(--blue);font-size:1.05rem;margin-bottom:8px">📏 Job 1 — Measure battery voltage (most common)</h3>
+  <div class="stepbig"><div class="n">1</div><div>Dial to <b class="blu">V⎓ DC volts</b>. Pick a number <i>bigger</i> than you expect (20 V for a 9 V battery).</div></div>
+  <div class="stepbig"><div class="n">2</div><div>Black lead in <b>COM</b>. Red lead in <b>VΩ</b>.</div></div>
+  <div class="stepbig"><div class="n">3</div><div>Touch <b>red to +</b>, <b>black to −</b>. Polarity doesn't matter — you'll just get a minus sign if swapped.</div></div>
+  <div class="stepbig"><div class="n">4</div><div>Read the number. 9 V battery showing <code>7.2 V</code>? It's flat. Showing <code>9.3 V</code>? Good.</div></div>
+
+  <svg viewBox="0 0 700 200" role="img" aria-label="measuring voltage">
+    <rect x="60" y="70" width="80" height="120" rx="10" fill="#2a333d" stroke="#4a5561"/>
+    <text x="100" y="60" class="lbl-big" text-anchor="middle" fill="var(--red)">+</text>
+    <text x="100" y="210" class="lbl-big" text-anchor="middle" fill="var(--blue)">−</text>
+    <text x="100" y="140" class="lbl-big" text-anchor="middle">9V</text>
+    <!-- probes -->
+    <line x1="100" y1="70" x2="320" y2="100" stroke="var(--red)" stroke-width="4"/>
+    <line x1="100" y1="190" x2="320" y2="160" stroke="var(--blue)" stroke-width="4"/>
+    <!-- meter -->
+    <g transform="translate(420,130)">
+      <rect x="-90" y="-50" width="180" height="100" rx="10" fill="#0c1117" stroke="var(--green)" stroke-width="2"/>
+      <text x="0" y="-5" class="lbl-big" text-anchor="middle" fill="var(--green)">9.12 V</text>
+      <text x="0" y="15" class="lbl" text-anchor="middle">DC</text>
+    </g>
+    <text x="220" y="90" class="lbl" fill="var(--red)">red probe → +</text>
+    <text x="220" y="180" class="lbl" fill="var(--blue)">black probe → −</text>
+    <text x="350" y="30" class="lbl" text-anchor="middle">meter sits ACROSS the thing you're measuring (parallel)</text>
+  </svg>
+
+  <h3 style="color:var(--red);font-size:1.05rem;margin:18px 0 8px">🌊 Job 2 — Measure current (how much flows)</h3>
+  <div class="callout warn" style="margin-top:0">
+    <span>⚠️</span>
+    <div><b>Current is the one that can blow a fuse.</b> The meter must go <b>IN the loop</b> (in series) — you have to break a wire and put the meter in the gap. Start on the <b>10 A</b> jack, not mA.</div>
+  </div>
+  <div class="stepbig"><div class="n">1</div><div>Move red lead to the <b>10 A</b> hole (usually separate from VΩ).</div></div>
+  <div class="stepbig"><div class="n">2</div><div>Dial to <b class="red">A⎓</b> (DC amps).</div></div>
+  <div class="stepbig"><div class="n">3</div><div>Break the circuit at one point. Touch one probe to each broken end. The current now flows <i>through</i> the meter.</div></div>
+  <div class="stepbig"><div class="n">4</div><div>Read in amps (A) or milliamps (mA). 1000 mA = 1 A.</div></div>
+
+  <h3 style="color:var(--green);font-size:1.05rem;margin:18px 0 8px">🔔 Job 3 — Continuity beep (find broken wires)</h3>
+  <p class="small" style="margin-bottom:8px">Most useful setting of all. It beeps if two points are connected by wire. Great for tracing traces on the radio board.</p>
+  <div class="stepbig"><div class="n">1</div><div>Dial to <b>)))</b>. Leads in <b>COM</b> + <b>VΩ</b>.</div></div>
+  <div class="stepbig"><div class="n">2</div><div>Touch probes to two points. <b>Beep</b> = same wire/connected. <b>Silence</b> = gap/broken.</div></div>
+  <div class="stepbig"><div class="n">3</div><div>Use it to find which copper trace leads where on your radio, or check if a fuse is blown.</div></div>
+</div>
+
+<h2 style="border-color:var(--yellow);color:var(--yellow)">7c. All the letters, decoded</h2>
+<div class="card">
+  <table class="tt">
+    <tr><th>Symbol</th><th>Name</th><th>Use it for</th><th>Red lead goes in</th></tr>
+    <tr><td><b class="blu">V⎓</b></td><td>DC voltage</td><td>Batteries, solar panel output, USB, inside radios/cars</td><td>VΩ</td></tr>
+    <tr><td><b class="blu">V∿</b></td><td>AC voltage</td><td>Wall sockets (dangerous!), mains transformers</td><td>VΩ</td></tr>
+    <tr><td><b class="red">A⎓</b></td><td>DC current</td><td>Measuring how much a device draws</td><td>mA or 10A ⚠</td></tr>
+    <tr><td><b class="red">A∿</b></td><td>AC current</td><td>Mains appliances (rare for hobby)</td><td>mA or 10A</td></tr>
+    <tr><td><b class="grn">Ω</b></td><td>Resistance</td><td>Reading resistor values, checking a part</td><td>VΩ</td></tr>
+    <tr><td><b>)))</b></td><td>Continuity</td><td>Finding breaks; beeps if connected</td><td>VΩ</td></tr>
+    <tr><td><b>⏩</b></td><td>Diode test</td><td>Check LEDs &amp; diodes — shows forward voltage</td><td>VΩ</td></tr>
+    <tr><td><b>Hz</b></td><td>Frequency</td><td>How fast AC wobbles (mains = 50 Hz UK)</td><td>VΩ</td></tr>
+    <tr><td><b>F</b></td><td>Capacitance</td><td>Measure capacitors (only on nicer meters)</td><td>VΩ</td></tr>
+    <tr><td><b>°C/°F</b></td><td>Temperature</td><td>With a special probe</td><td>temp socket</td></tr>
+  </table>
+  <p class="small" style="margin-top:8px"><b>⎓</b> = straight line = DC (batteries, solar). <b>∿</b> = wavy line = AC (wall sockets). That's the easiest way to remember.</p>
+</div>
+
+<h2 style="border-color:var(--yellow);color:var(--yellow)">7d. Numbers on the dial (200m, 2, 20, 200, 1000)</h2>
+<div class="card">
+  <p class="lead">These are <b>maximums</b> the meter can read on that spot. Pick one <i>bigger</i> than what you expect.</p>
+  <table class="tt">
+    <tr><th>Setting says</th><th>Means</th><th>Use for</th></tr>
+    <tr><td>200m (on A)</td><td>up to 0.2 A (200 mA)</td><td>Small LEDs</td></tr>
+    <tr><td>2000m / 2m</td><td>millivolts / milliamps — tiny</td><td>Sensor signals</td></tr>
+    <tr><td>20</td><td>up to 20 (V or A)</td><td>12 V car, 9 V battery ✅</td></tr>
+    <tr><td>200</td><td>up to 200</td><td>Mains voltage (AC)</td></tr>
+    <tr><td>1000 / 750</td><td>up to 1000 V</td><td>Big batteries / industrial</td></tr>
+  </table>
+  <div class="callout"><span>💡</span><div>If it reads <b>"1" or "OL"</b> on the left, the value is too big for that setting — turn the dial one notch higher. Auto-ranging meters skip this: they pick the range themselves.</div></div>
+</div>
+
+<h2 style="border-color:var(--yellow);color:var(--yellow)">7e. Use it on YOUR radio + solar panel</h2>
+<div class="card">
+  <ul class="clean">
+    <li><b>Check the solar panel:</b> dial V⎓ (20 V). Red to +, black to −, in sunlight. Write down the number — that's what it actually produces.</li>
+    <li><b>Check the battery it replaces:</b> same setting, measure the old battery. Now you know what voltage the radio <i>expects</i>.</li>
+    <li><b>Match them.</b> Solar ≈ battery volts. If solar is way higher, you need a regulator or resistors before connecting.</li>
+    <li><b>Find + and −:</b> any two wires, measure V⎓. If you see <code>+5.2</code>, red is on +. If <code>−5.2</code>, red is on −.</li>
+    <li><b>Trace a trace:</b> continuity ())). Touch one probe to a pin, drag the other across pads until it beeps — that's where the pin goes.</li>
+    <li><b>Check a suspect resistor:</b> Ω setting, touch both ends, read value. Compare to its coloured bands.</li>
+  </ul>
+  <div class="callout warn"><span>⚠️</span><div><b>Never</b> turn the dial to A (amps) and touch a battery directly. That short-circuits through the meter and blows its fuse (or worse). Amps always go <i>in series</i> with a load.</div></div>
+</div>
+
+<!-- ============ QUICK SAFETY ============ -->
+<h2>8. Quick safety &amp; tips</h2>
+<div class="card">
+  <ul class="clean">
+    <li>Unplug batteries before soldering or poking around.</li>
+    <li>Test LEDs with a <b>resistor</b> first — cheap to protect, costly to replace.</li>
+    <li>A <b>multimeter</b> (€10) tells you voltage &amp; which way current flows — game changer.</li>
+    <li>Capacitors can hold a zap even after off — don't touch big ones with bare fingers.</li>
+    <li>When in doubt: <b>less voltage first</b>. You can always add more; you can't un-blow a chip.</li>
+  </ul>
+  <p class="small" style="margin-top:10px">Made to start simple. Re-open it any time you pull something apart. 🔧</p>
+</div>
+
+<script>
+// Switch 1
+(function(){
+  const btn=document.getElementById('sw1');
+  const lever=document.getElementById('lever1');
+  const flow=document.getElementById('flow1');
+  const led=document.getElementById('led1');
+  const st=document.getElementById('state1');
+  let on=false;
+  btn.onclick=()=>{
+    on=!on;
+    btn.textContent='Switch: '+(on?'ON':'OFF');
+    btn.classList.toggle('off',!on);
+    lever.setAttribute('x2', on?'34':'34');
+    lever.setAttribute('y2', on?'0':'-22');
+    flow.classList.toggle('hidden',!on);
+    if(on){led.setAttribute('stroke','var(--green)');led.querySelector('path').setAttribute('stroke','var(--green)');}
+    else{led.setAttribute('stroke','#3a5540');led.querySelector('path').setAttribute('stroke','#3a5540');}
+    st.textContent=on?'CLOSED loop — electricity flows, LED lights ✅':'OPEN loop — no flow, LED dark';
+    st.setAttribute('fill', on?'var(--green)':'var(--muted)');
+  };
+})();
+
+// Resistor interactive
+(function(){
+  const res=document.getElementById('resVal');
+  const lbl=document.getElementById('resLbl');
+  const btn=document.getElementById('sw2');
+  const lever=document.getElementById('lever2');
+  const flow=document.getElementById('flow2');
+  const led=document.getElementById('led2');
+  const rays=document.getElementById('ledrays');
+  const readout=document.getElementById('readout');
+  let on=false;
+  function update(){
+    const r=+res.value;
+    lbl.textContent=r+' Ω';
+    if(!on){readout.textContent='Turn it on →';readout.setAttribute('fill','var(--muted)');return;}
+    if(r<50){
+      // burn
+      led.setAttribute('fill','#3a1a1a');led.setAttribute('stroke','var(--red)');
+      rays.setAttribute('stroke','var(--red)');
+      flow.classList.remove('hidden');
+      readout.textContent='🔥 POP! Too much current — LED burned out. Add a resistor!';
+      readout.setAttribute('fill','var(--red)');
+    } else {
+      const current=(7/r*1000); // mA
+      const brightness=Math.min(1,20/current); // higher current brighter
+      const green=Math.round(80+brightness*175);
+      led.setAttribute('fill',`rgb(0,${green},${Math.round(green*.4)})`);
+      led.setAttribute('stroke','var(--green)');
+      rays.setAttribute('stroke','var(--green)');
+      flow.classList.remove('hidden');
+      let note='';
+      if(current>20) note=' — very bright, getting hot!';
+      else if(current<5) note=' — dim (resistor is high)';
+      else note=' — nice & safe ✅';
+      readout.textContent=`Current ≈ ${current.toFixed(1)} mA${note}`;
+      readout.setAttribute('fill', current>20?'var(--yellow)':'var(--green)');
+    }
+  }
+  btn.onclick=()=>{
+    on=!on;
+    btn.textContent='Switch: '+(on?'ON':'OFF');
+    btn.classList.toggle('off',!on);
+    lever.setAttribute('y2', on?'0':'-18');
+    if(!on){flow.classList.add('hidden');led.setAttribute('fill','#0c1117');led.setAttribute('stroke','#3a5540');rays.setAttribute('stroke','#3a5540');}
+    update();
+  };
+  res.oninput=update;
+})();
+
+// Multimeter dial
+(function(){
+  const M={
+    off:{nm:'⏻ OFF',scr:'-----',tip:'Meter off. Always put it back here.',red:'COM only',
+      info:'<h4>Off</h4><p>Switch the meter off when you\'re done — it saves the battery. Leave red lead in VΩ for next time.</p>'},
+    vdc:{nm:'V⎓  DC VOLTS',scr:'9.12 V',tip:'Batteries, solar, USB, inside radios.',red:'VΩ',
+      info:'<h4>DC volts (V⎓)</h4><p>Measures the "push" from batteries and solar panels — anything with a + and −. The setting you\'ll use most.</p><p>Place probes <b>across</b> the part (parallel). Pick a range higher than you expect, or use Auto.</p><p>Red lead = <b>VΩ</b> jack.</p>'},
+    vac:{nm:'V∿  AC VOLTS',scr:'237 V',tip:'Wall sockets. DANGEROUS — be careful.',red:'VΩ',
+      info:'<h4>AC volts (V∿)</h4><p>Measures mains voltage that wobbles back and forth — UK wall sockets are ~230 V at 50 Hz. Only use it on insulated, properly-rated probes. Don\'t measure bare mains unless you know exactly what you\'re doing.</p>'},
+    adc:{nm:'A⎓  DC AMPS',scr:'0.024 A',tip:'Meter goes IN the loop, not across it.',red:'mA or 10A',
+      info:'<h4>DC amps (A⎓)</h4><p>Measures how much current is <b>flowing</b>. You must break the wire and put the meter in the gap (series). Move the red lead to the <b>mA</b> or <b>10A</b> jack — leaving it in VΩ gives no reading.</p><p class="small">Start on 10 A. Only drop to mA if you know the current is small. Wrong jack = blown fuse.</p>'},
+    ohm:{nm:'Ω  RESISTANCE',scr:'328 Ω',tip:'Resistors &amp; wires. Power OFF first.',red:'VΩ',
+      info:'<h4>Resistance (Ω)</h4><p>Measures how much a part resists electricity. <b>Turn power off</b> before measuring — external voltage confuses it. Touch both ends of a resistor to read its value.</p><p>Touching both metal tips with your fingers adds your body\'s resistance — keep fingers back.</p>'},
+    cont:{nm:')))  CONTINUITY',scr:'0.0 Ω ●',tip:'Beeps if connected. Best tracing tool.',red:'VΩ',
+      info:'<h4>Continuity ( )))</h4><p>Beeps when two points are connected by near-zero resistance. Use it to trace copper traces, find broken wires, check fuses, and verify solder joints. Power off first.</p><p>Touch probes together — you should hear a beep. That proves the meter works.</p>'},
+    diode:{nm:'⏩  DIODE',scr:'0.68 V',tip:'Test LEDs & diodes. One way beeps, other way silent.',red:'VΩ',
+      info:'<h4>Diode test (⏩)</h4><p>Sends a tiny voltage one way through a diode/LED. A good diode shows ~0.6–0.7 V (or ~1.8–3 V for an LED — it may even faintly light!). Reversed probes should show "OL" (no flow). If both ways beep, the diode is shorted. Both silent, it\'s dead.</p>'},
+    hz:{nm:'Hz  FREQUENCY',scr:'50 Hz',tip:'Wobbles per second. UK mains = 50.',red:'VΩ',
+      info:'<h4>Frequency (Hz)</h4><p>Counts how many times per second an AC signal wobbles. UK mains = 50 Hz. Useful for checking PWM dimmers, motor controllers, or clock signals. On most meters it shares a spot with AC volts — press the "Hz/%" button.</p>'},
+  };
+  const positions=document.querySelectorAll('.dial .pos');
+  const screen=document.getElementById('mmScreen');
+  const mode=document.getElementById('mmMode');
+  const tip=document.getElementById('mmTip');
+  const info=document.getElementById('mmInfo');
+  const redJack=document.getElementById('redJack');
+  positions.forEach(p=>{
+    p.onclick=()=>{
+      positions.forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+      const d=M[p.dataset.m];
+      mode.textContent=d.nm;
+      screen.textContent=d.scr;
+      tip.innerHTML=`<span>👉</span><div>${d.tip}</div>`;
+      info.innerHTML=d.info;
+      redJack.textContent='🔴 '+(d.red==='VΩ'?'VΩ — red lead (volts/ohms/beep)':d.red==='mA or 10A'?'10A or mA — move red lead here! ⚠':'COM only — leave red in VΩ');
+      redJack.style.color = d.red==='mA or 10A'?'var(--red)':'';
+    };
+  });
+})();
+
+// Parts explorer
+(function(){
+  const info={
+    res:{i:'🛑',t:'Resistor',d:'Restricts how much current flows. Coloured bands tell its value in ohms (Ω). Without it, LEDs and chips get too much and burn.'},
+    cap:{i:'🪣',t:'Capacitor',d:'Stores a quick gulp of electricity and releases it to smooth out dips. Like a tiny rechargeable battery that fills/empties in microseconds.'},
+    dio:{i:'↩️',t:'Diode',d:'A one-way valve. Current only flows in the arrow direction. Used to protect circuits from backwards batteries or convert AC to DC.'},
+    tran:{i:'🚪',t:'Transistor',d:'An electronic tap. A tiny current on one leg opens the gate for a big current on the other. Amplifiers and switches are made of billions of these.'},
+    ic:{i:'🧠',t:'IC / Chip',d:'A black chip with many legs. Inside are thousands/billions of transistors doing logic, memory, radio tuning, audio — the "thinking" part.'},
+    sw:{i:'🔘',t:'Switch / Button',d:'Mechanically or electronically closes/opens the loop. Press = wires touch, current flows. Release = gap, current stops.'},
+    spk:{i:'🔊',t:'Speaker',d:'Current moves a coil near a magnet, pushing a cone to move air → sound waves. The radio station signal wiggles that current to make music/voice.'},
+    solar:{i:'☀️',t:'Solar panel',d:'Photons knock electrons loose in silicon, creating current. Acts like a battery whose voltage depends on brightness. Match its V to your device!'},
+  };
+  const det=document.getElementById('partDetail');
+  document.querySelectorAll('.part[data-p]').forEach(el=>{
+    el.onclick=()=>{
+      const d=info[el.dataset.p];
+      det.innerHTML=`<span>${d.i}</span><div><b>${d.t}.</b> ${d.d}</div>`;
+    };
+  });
+})();
+</script>
+</body>
+</html>
